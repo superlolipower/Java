@@ -69,10 +69,6 @@ public class LinkedList {
 		/* Start with the empty list. */
 		LinkedList list = new LinkedList(); 
 
-		// 
-		// ******INSERTION****** 
-		// 
-
 		// Ввод значений 
 		list = insert(list, 1); 
 		list = insert(list, 2); 
