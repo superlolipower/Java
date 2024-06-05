@@ -54,7 +54,7 @@ public class LinkedList {
 	
 		System.out.print("LinkedList: "); 
 	
-		// Traverse through the LinkedList 
+		// Проход до конца списка в цикле 
 		while (currNode != null) { 
 			// Вывод значения данного узла
 			System.out.print(currNode.data + " "); 
@@ -66,7 +66,7 @@ public class LinkedList {
 	 
 	public static void main(String[] args) 
 	{ 
-		/* Start with the empty list. */
+		/* Создание пустого списка */
 		LinkedList list = new LinkedList(); 
 
 		// Ввод значений 
