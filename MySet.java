@@ -1,34 +1,34 @@
 import java.util.ArrayList;
 
 public class MySet<T> {
-    private ArrayList<T> elements;
+    private ArrayList<T> elements; //Реализация множества с помощью ArrayList
 
     public MySet() {
         elements = new ArrayList<>();
     }
-
+//Добавление элементов
     public void add(T element) {
-        if (!elements.contains(element)) {
+        if (!elements.contains(element)) { //Если такого элемента в множестве нет, добавляем
             elements.add(element);
         }
     }
-
+//Удаление элементов
     public void remove(T element) {
         elements.remove(element);
     }
-
+//Проверяем, содержится ли элемент в множестве
     public boolean contains(T element) {
         return elements.contains(element);
     }
-
+//Количество элементов в множестве
     public int size() {
         return elements.size();
     }
-
+//Очистка множества
     public void clear() {
         elements.clear();
     }
-
+//Переопределение функции преобразования в строку для вывода множества
     @Override
     public String toString() {
         return elements.toString();
