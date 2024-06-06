@@ -10,15 +10,15 @@ class Stack {
         stackArray = new int[mSize];
         top = -1;
     }
- 
+ //Добавление элемента в стек 
     public void Push(int element) {
         stackArray[++top] = element;
     }
- 
+ //Удаление элемента из стека
     public int Pop() {
         return stackArray[top--];
     }
- 
+ //Просмотр верхнего элемента стека
     public int Peek() {
         return stackArray[top];
  
