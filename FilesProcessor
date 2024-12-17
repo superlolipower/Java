@@ -1,0 +1,188 @@
+
+
+package com.mycompany.files;
+
+import java.io.*;
+import java.util.*;
+
+public class FileProcessor {
+
+    public static void main(String[] args) {
+        String inputFile = "input.txt";       // Исходный файл
+        String outputFile = "output.txt";     // Файл назначения
+
+        removeDuplicateLines(inputFile, outputFile);
+    }
+
+    public static void removeDuplicateLines(String inputFile, String outputFile) {
+        Set<String> uniqueLines = new LinkedHashSet<>();
+        int duplicateCount = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!uniqueLines.add(line)) {
+                    duplicateCount++; // Подсчёт дубликатов
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+            return;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile))) {
+            for (String line : uniqueLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+            writer.write("Количество удалённых дублирующихся строк: " + duplicateCount);
+            System.out.println("Дубли удалены. Результат записан в файл: " + outputFile);
+        } catch (IOException e) {
+            System.err.println("Ошибка при записи в файл: " + e.getMessage());
+        }
+    }
+}
+
+
+package com.mycompany.files;
+
+import java.io.*;
+import java.util.*;
+
+public class FileRestorer {
+
+    public static void main(String[] args) {
+        String compressedFile = "compressed.txt";
+        String restoredFile = "restored.txt";
+
+        restoreFile(compressedFile, restoredFile);
+    }
+
+    public static void restoreFile(String compressedFile, String restoredFile) {
+        List<String> restoredLines = new ArrayList<>();
+        String previousLine = "";
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(compressedFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("~")) { 
+                    // Восстанавливаем строку на основе предыдущей
+                    line = previousLine + line.substring(1);
+                }
+                restoredLines.add(line);
+                previousLine = line;
+            }
+        } catch (IOException e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+            return;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(restoredFile))) {
+            for (String line : restoredLines) {
+                writer.write(line);
+                writer.newLine();
+            }
+            System.out.println("Файл восстановлен и записан в: " + restoredFile);
+        } catch (IOException e) {
+            System.err.println("Ошибка при записи в файл: " + e.getMessage());
+        }
+    }
+}
+
+
+package com.mycompany.files;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+
+public class TestFileFunctions {
+
+    public static void main(String[] args) {
+        // Тестирование удаления дубликатов
+        testRemoveDuplicates();
+
+        // Тестирование восстановления файла
+        testRestoreFile();
+    }
+
+    // Тестирование удаления дублирующихся строк
+    public static void testRemoveDuplicates() {
+        System.out.println("Тестирование удаления дубликатов...");
+
+        String inputFile = "test_input_duplicates.txt";
+        String outputFile = "test_output_no_duplicates.txt";
+
+        // Создаём тестовый файл с дубликатами
+        String[] testData = {
+                "Привет",
+                "Мир",
+                "Привет", // дубликат
+                "Java",
+                "Java"    // дубликат
+        };
+
+        writeTestFile(inputFile, testData);
+
+        // Запуск функции удаления дубликатов
+        FileProcessor.removeDuplicateLines(inputFile, outputFile);
+
+        // Чтение результата и вывод на консоль
+        System.out.println("Содержимое файла после удаления дубликатов:");
+        printFileContents(outputFile);
+        System.out.println("Тест удаления дубликатов завершён.");
+        System.out.println("------------------------------------\n");
+    }
+
+    // Тестирование восстановления сжатого файла
+    public static void testRestoreFile() {
+        System.out.println("Тестирование восстановления файла...");
+
+        String compressedFile = "test_compressed.txt";
+        String restoredFile = "test_restored.txt";
+
+        // Создаём тестовый сжатый файл
+        String[] compressedData = {
+                "Привет",
+                "~ Мир",
+                "Java",
+                "~Script"
+        };
+
+        writeTestFile(compressedFile, compressedData);
+
+        // Запуск функции восстановления файла
+        FileRestorer.restoreFile(compressedFile, restoredFile);
+
+        // Чтение результата и вывод на консоль
+        System.out.println("Содержимое восстановленного файла:");
+        printFileContents(restoredFile);
+        System.out.println("Тест восстановления файла завершён.");
+        System.out.println("------------------------------------\n");
+    }
+
+    // Вспомогательный метод для записи тестовых данных в файл
+    private static void writeTestFile(String fileName, String[] lines) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Path.of(fileName), StandardOpenOption.CREATE)) {
+            for (String line : lines) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Ошибка при создании тестового файла: " + e.getMessage());
+        }
+    }
+
+    // Вспомогательный метод для вывода содержимого файла на консоль
+    private static void printFileContents(String fileName) {
+        try (BufferedReader reader = Files.newBufferedReader(Path.of(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Ошибка при чтении файла: " + e.getMessage());
+        }
+    }
+}
