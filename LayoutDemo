@@ -1,0 +1,44 @@
+import javax.swing.*;
+import java.awt.*;
+
+public class LayoutDemo extends JFrame {
+    public LayoutDemo() {
+        // Настройка главного окна
+        setTitle("Демонстрация Layout Managers");
+        setSize(500, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Установка BorderLayout для JFrame
+        setLayout(new BorderLayout());
+
+        // Верхний компонент (Север) - JLabel
+        JLabel titleLabel = new JLabel("Демонстрация BorderLayout и FlowLayout", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        add(titleLabel, BorderLayout.NORTH);
+
+        // Центральная панель с FlowLayout
+        JPanel flowLayoutPanel = new JPanel();
+        flowLayoutPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
+        // Добавление кнопок в JPanel
+        for (int i = 1; i <= 5; i++) {
+            flowLayoutPanel.add(new JButton("Кнопка " + i));
+        }
+
+        // Добавляем JPanel в центр JFrame
+        add(flowLayoutPanel, BorderLayout.CENTER);
+
+        // Нижний компонент (Юг) - JLabel
+        JLabel footerLabel = new JLabel("Компоненты расположены с использованием FlowLayout", JLabel.CENTER);
+        footerLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        add(footerLabel, BorderLayout.SOUTH);
+
+        // Отображение окна
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LayoutDemo());
+    }
+}
