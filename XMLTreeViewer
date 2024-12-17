@@ -1,0 +1,87 @@
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.*;
+
+public class XMLTreeViewer extends JFrame {
+    private JTree tree; // Древовидное отображение
+    private JScrollPane scrollPane;
+
+    public XMLTreeViewer() {
+        setTitle("XML Viewer");
+        setSize(500, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Создаём пустое дерево и панель прокрутки
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("No file loaded");
+        tree = new JTree(root);
+        scrollPane = new JScrollPane(tree);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Создаём кнопку для загрузки файла
+        JButton loadButton = new JButton("Открыть XML файл");
+        loadButton.addActionListener(e -> loadXMLFile());
+        add(loadButton, BorderLayout.SOUTH);
+
+        setVisible(true);
+    }
+
+    private void loadXMLFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Выберите XML файл");
+        int result = fileChooser.showOpenDialog(this);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File xmlFile = fileChooser.getSelectedFile();
+            try {
+                // Парсинг XML файла
+                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder builder = factory.newDocumentBuilder();
+                Document document = builder.parse(xmlFile);
+
+                // Удаление пробелов и пустых текстовых узлов
+                document.getDocumentElement().normalize();
+
+                // Создаём дерево на основе XML
+                DefaultMutableTreeNode root = createTreeFromXML(document.getDocumentElement());
+                tree.setModel(new DefaultTreeModel(root));
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Ошибка при чтении XML файла: " + ex.getMessage(),
+                        "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Рекурсивное создание дерева из XML
+    private DefaultMutableTreeNode createTreeFromXML(Node node) {
+        DefaultMutableTreeNode treeNode = new DefaultMutableTreeNode(node.getNodeName());
+
+        NodeList childNodes = node.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node child = childNodes.item(i);
+
+            // Если узел является элементом
+            if (child.getNodeType() == Node.ELEMENT_NODE) {
+                treeNode.add(createTreeFromXML(child));
+            }
+            // Если узел содержит текст (и он не пустой)
+            else if (child.getNodeType() == Node.TEXT_NODE) {
+                String text = child.getNodeValue().trim();
+                if (!text.isEmpty()) {
+                    treeNode.add(new DefaultMutableTreeNode(text));
+                }
+            }
+        }
+        return treeNode;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(XMLTreeViewer::new);
+    }
+}
