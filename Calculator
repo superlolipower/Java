@@ -1,0 +1,106 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class Calculator extends JFrame implements ActionListener {
+    // Поле для ввода и вывода результата
+    private JTextField display;
+
+    // Переменные для хранения чисел и операции
+    private double firstNumber = 0;
+    private double secondNumber = 0;
+    private String operator = "";
+    private boolean isOperatorClicked = false;
+
+    // Конструктор калькулятора
+    public Calculator() {
+        // Настройка окна
+        setTitle("Калькулятор");
+        setSize(300, 400);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Поле вывода
+        display = new JTextField();
+        display.setFont(new Font("Arial", Font.BOLD, 24));
+        display.setHorizontalAlignment(JTextField.RIGHT);
+        display.setEditable(false);
+        add(display, BorderLayout.NORTH);
+
+        // Панель кнопок
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(4, 4, 10, 10));
+
+        // Кнопки калькулятора
+        String[] buttonLabels = {
+                "7", "8", "9", "/", 
+                "4", "5", "6", "*", 
+                "1", "2", "3", "-", 
+                "C", "0", "=", "+"
+        };
+
+        for (String label : buttonLabels) {
+            JButton button = new JButton(label);
+            button.setFont(new Font("Arial", Font.BOLD, 20));
+            button.addActionListener(this);
+            buttonPanel.add(button);
+        }
+
+        add(buttonPanel, BorderLayout.CENTER);
+
+        setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+
+        // Если нажата цифра
+        if (command.matches("[0-9]")) {
+            if (isOperatorClicked) {
+                display.setText(""); // Очистить поле при новой цифре после операции
+                isOperatorClicked = false;
+            }
+            display.setText(display.getText() + command);
+        } 
+        // Если нажата кнопка операции
+        else if (command.matches("[+\\-*/]")) {
+            firstNumber = Double.parseDouble(display.getText());
+            operator = command;
+            isOperatorClicked = true;
+        } 
+        // Если нажата кнопка "="
+        else if (command.equals("=")) {
+            secondNumber = Double.parseDouble(display.getText());
+            double result = calculateResult(firstNumber, secondNumber, operator);
+            display.setText(String.valueOf(result));
+            firstNumber = result; // Для цепочки операций
+            isOperatorClicked = true;
+        } 
+        // Если нажата кнопка "C" (очистка)
+        else if (command.equals("C")) {
+            display.setText("");
+            firstNumber = 0;
+            secondNumber = 0;
+            operator = "";
+            isOperatorClicked = false;
+        }
+    }
+
+    // Метод для выполнения арифметической операции
+    private double calculateResult(double a, double b, String operator) {
+        switch (operator) {
+            case "+": return a + b;
+            case "-": return a - b;
+            case "*": return a * b;
+            case "/": return b != 0 ? a / b : 0; // Проверка деления на ноль
+            default: return 0;
+        }
+    }
+
+    // Запуск калькулятора
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Calculator());
+    }
+}
