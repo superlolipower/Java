@@ -1,0 +1,121 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.HashMap;
+
+public class TextEditorWithAutoReplace extends JFrame {
+    private JTextArea textArea;
+    private JMenuItem openMenuItem, saveMenuItem;
+    private HashMap<String, String> autoReplaceMap;
+
+    public TextEditorWithAutoReplace() {
+        // Настройка окна
+        setTitle("Текстовый редактор с автозаменой");
+        setSize(600, 500);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // Создание текстовой области
+        textArea = new JTextArea();
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Настройка словаря автозамены
+        autoReplaceMap = new HashMap<>();
+        autoReplaceMap.put("превет", "привет");
+        autoReplaceMap.put("кагда", "когда");
+        autoReplaceMap.put("спосибо", "спасибо");
+        autoReplaceMap.put("пажалуста", "пожалуйста");
+
+        // Добавление слушателя для клавиши пробела
+        textArea.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == ' ') {
+                    startAutoReplaceThread();
+                }
+            }
+        });
+
+        // Создание меню
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("Файл");
+
+        openMenuItem = new JMenuItem("Открыть");
+        saveMenuItem = new JMenuItem("Сохранить");
+
+        openMenuItem.addActionListener(e -> openFile());
+        saveMenuItem.addActionListener(e -> saveFile());
+
+        fileMenu.add(openMenuItem);
+        fileMenu.add(saveMenuItem);
+        menuBar.add(fileMenu);
+
+        setJMenuBar(menuBar);
+        setVisible(true);
+    }
+
+    // Метод для запуска потока автозамены
+    private void startAutoReplaceThread() {
+        Thread autoReplaceThread = new Thread(() -> {
+            String text = textArea.getText();
+            String[] words = text.split("\\s+");
+            StringBuilder updatedText = new StringBuilder();
+
+            for (String word : words) {
+                String trimmedWord = word.trim();
+                // Заменяем слово, если оно есть в словаре
+                if (autoReplaceMap.containsKey(trimmedWord)) {
+                    updatedText.append(autoReplaceMap.get(trimmedWord)).append(" ");
+                } else {
+                    updatedText.append(trimmedWord).append(" ");
+                }
+            }
+
+            SwingUtilities.invokeLater(() -> {
+                textArea.setText(updatedText.toString());
+            });
+        });
+        autoReplaceThread.start();
+    }
+
+    // Метод для открытия файла
+    private void openFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int option = fileChooser.showOpenDialog(this);
+
+        if (option == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                textArea.setText(""); // Очистка текущего текста
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    textArea.append(line + "\n");
+                }
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Ошибка при открытии файла!", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // Метод для сохранения файла
+    private void saveFile() {
+        JFileChooser fileChooser = new JFileChooser();
+        int option = fileChooser.showSaveDialog(this);
+
+        if (option == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(textArea.getText());
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "Ошибка при сохранении файла!", "Ошибка", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new TextEditorWithAutoReplace());
+    }
+}
