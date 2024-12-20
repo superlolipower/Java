@@ -1,0 +1,40 @@
+
+package com.mycompany.bubblesort;
+
+public class BubbleSort {
+    
+    public static void bubbleSort(int[] array) {
+        int n = array.length;
+        
+        // Проходим по всем элементам массива
+        for (int i = 0; i < n - 1; i++) {
+            // Внутренний цикл для сравнения соседних элементов
+            for (int j = 0; j < n - i - 1; j++) {
+                if (array[j] > array[j + 1]) {
+                    // Меняем элементы местами, если первый больше второго
+                    int temp = array[j];
+                    array[j] = array[j + 1];
+                    array[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {64, 34, 25, 12, 22, 11, 90};
+        
+        System.out.println("Исходный массив:");
+        printArray(arr);
+        
+        bubbleSort(arr);
+        
+        System.out.println("\nОтсортированный массив:");
+        printArray(arr);
+    }
+
+    private static void printArray(int[] array) {
+        for (int value : array) {
+            System.out.print(value + " ");
+        }
+    }
+}
